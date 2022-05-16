@@ -4,6 +4,9 @@ import "github.com/jinzhu/gorm"
 
 type Book struct {
 	gorm.Model
-	Name   string `json:"book" binding:"required"`
-	Author []Author
+	Title   string `json:"book" binding:"required"`
+	ISBN    string `json:"isbn" binding:"required"`
+	BookUrl string `json:"book_url" binding:"required"`
+	Author  Author
+	Edition string `json:"edition" binding:"required"`
 }

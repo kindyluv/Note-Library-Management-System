@@ -1,4 +1,6 @@
 package data
 
-type LibrarianRepository struct {
+type LibrarianRepository interface {
+	SaveBook(book *Book) *Book
+	UpdateBookByTitle(book *Book) *Book
 }

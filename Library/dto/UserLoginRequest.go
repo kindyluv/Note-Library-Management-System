@@ -1,6 +1,6 @@
 package dto
 
-type ReaderRequest struct {
+type UserLoginRequest struct {
 	UserName string
 	Password string
 }
