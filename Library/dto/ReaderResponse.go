@@ -1,8 +1,10 @@
 package dto
 
-import "github.com/kindyluv/Note-Library-Management-System/tree/indev/Library/Library/data"
+import (
+	"gorm.io/gorm"
+)
 
 type ReaderResponse struct {
+	gorm.Model
 	UserName string
-	Book     []data.Book
 }

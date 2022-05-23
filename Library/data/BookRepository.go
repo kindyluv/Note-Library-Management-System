@@ -13,6 +13,9 @@ type BookRepository interface {
 	FindByBookId(bookId uint) *Book
 	FindByBookTitle(bookTitle string) *Book
 	FindByBookIsbn(bookIsbn string) *Book
+	FindByBookAuthor(bookAuthor string) *Book
+	FindByBookEdition(bookEdition string) *Book
+	FindAllBooks() []*Book
 	UpdateByBookId(bookId uint) string
 	UpdateBookByTitle(title string) string
 	UpdateBookByIsbn(bookIsbn string) string
@@ -44,7 +47,7 @@ func Connect() *gorm.DB {
 type BookRepositoryImpl struct {
 }
 
-func (bookRepo *BookRepositoryImpl) SaveBook(book *Book) *dto.BookResponse {
+func (bookRepo *BookRepositoryImpl) SaveBook(request dto.BookRequest) *dto.BookResponse {
 	Db := Connect()
 	defer func(Db *gorm.DB) {
 		err := Db.Close()
@@ -52,6 +55,7 @@ func (bookRepo *BookRepositoryImpl) SaveBook(book *Book) *dto.BookResponse {
 
 		}
 	}(Db)
+	book := fileUploadRequest(request)
 	savedBook := &Book{}
 	Db.Create(book)
 	Db.Where("ID = ?", book.ID).Find(&savedBook)
@@ -85,12 +89,16 @@ func FindByBookId(bookId uint) *Book {
 		}
 	}(Db)
 	savedBooks := &Book{}
-	Db.Where("Book ID = ? ", bookId).Find(&savedBooks)
+	Db.Where("ID = ? ", bookId).Find(&savedBooks)
 
 	if savedBooks == nil {
 		return nil
 	}
 	return savedBooks
+}
+
+func (bookRepo *BookRepositoryImpl) FindByBookId(bookId uint) *Book {
+	return FindByBookId(bookId)
 }
 
 func FindByBookTitle(bookTitle string) *Book {
@@ -102,11 +110,15 @@ func FindByBookTitle(bookTitle string) *Book {
 		}
 	}(Db)
 	savedBooks := &Book{}
-	Db.Where("Book Title = ? ", bookTitle).Find(savedBooks)
-	if savedBooks != nil {
+	Db.Where("Title = ? ", bookTitle).Find(savedBooks)
+	if savedBooks == nil {
 		return nil
 	}
 	return savedBooks
+}
+
+func (bookRepo *BookRepositoryImpl) FindByBookTitle(bookTitle string) *Book {
+	return FindByBookTitle(bookTitle)
 }
 func FindByBookIsbn(bookIsbn string) *Book {
 	Db := Connect()
@@ -118,4 +130,140 @@ func FindByBookIsbn(bookIsbn string) *Book {
 	}(Db)
 	savedBooks := &Book{}
 	Db.Where("ISBN = ? ", bookIsbn).Find(savedBooks)
+	if savedBooks == nil {
+		return nil
+	}
+	return savedBooks
+}
+
+func (bookRepo *BookRepositoryImpl) FindByBookIsbn(bookIsbn string) *Book {
+	return FindByBookIsbn(bookIsbn)
+}
+
+func (bookRepo *BookRepositoryImpl) FindByBookAuthor(bookAuthor string) *Book {
+	Db := Connect()
+	defer func(db *gorm.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(Db)
+	savedBook := &Book{}
+	Db.Where("Author = ? ", bookAuthor).First(savedBook)
+	if savedBook == nil {
+		return nil
+	}
+	return savedBook
+}
+
+func (bookRepo *BookRepositoryImpl) FindByBookEdition(bookEdition string) *Book {
+	Db := Connect()
+	defer func(db *gorm.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(Db)
+	savedBook := &Book{}
+	Db.Where("Edition = ? ", bookEdition).First(savedBook)
+	if savedBook == nil {
+		return nil
+	}
+	return savedBook
+}
+
+func (bookRepo *BookRepositoryImpl) FindAllBooks() []*Book {
+	Db := Connect()
+	defer func(db *gorm.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(Db)
+	var books []*Book
+	Db.Find(books)
+	return books
+}
+func (bookRepo *BookRepositoryImpl) UpdateByBookId(bookId uint) string {
+	foundBook := FindByBookId(bookId)
+	log.Println("Book to be updated --> ", foundBook)
+	var book Book
+	Db.First(&book, foundBook)
+	book.ID = foundBook.ID
+	book.Title = foundBook.Title
+	book.ISBN = foundBook.ISBN
+	book.Edition = foundBook.Edition
+	book.BookUrl = foundBook.BookUrl
+	book.Author = foundBook.Author
+	book.UpdatedAt = foundBook.UpdatedAt
+	Db.Update(book)
+	return "Book with this title " + foundBook.Edition + " has been updated"
+}
+
+func (bookRepo *BookRepositoryImpl) UpdateBookByTitle(title string) string {
+	foundBook := FindByBookTitle(title)
+	log.Println("Book to be updated --> ", foundBook)
+	var book Book
+	Db.First(&book, foundBook)
+	book.ID = foundBook.ID
+	book.Title = foundBook.Title
+	book.ISBN = foundBook.ISBN
+	book.Edition = foundBook.Edition
+	book.BookUrl = foundBook.BookUrl
+	book.Author = foundBook.Author
+	book.UpdatedAt = foundBook.UpdatedAt
+	Db.Update(book)
+	return "Book with this title " + foundBook.Title + " has been updated"
+}
+
+func (bookRepo *BookRepositoryImpl) UpdateBookByIsbn(bookIsbn string) string {
+	foundBook := FindByBookIsbn(bookIsbn)
+	log.Println("Book to be updated --> ", foundBook)
+	var book Book
+	Db.First(&book, foundBook)
+	book.ID = foundBook.ID
+	book.Title = foundBook.Title
+	book.ISBN = foundBook.ISBN
+	book.Edition = foundBook.Edition
+	book.BookUrl = foundBook.BookUrl
+	book.Author = foundBook.Author
+	book.UpdatedAt = foundBook.UpdatedAt
+	Db.Update(book)
+	return "Book with this title " + foundBook.ISBN + " has been updated"
+}
+
+func (bookRepo *BookRepositoryImpl) DeleteByBookId(bookId uint) string {
+	Db := Connect()
+	defer func(db *gorm.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(Db)
+	Db.Where("ID = ? ", bookId).Delete(&Book{})
+	return "Book successfully deleted"
+}
+
+func (bookRepo *BookRepositoryImpl) DeleteBookByTitle(title string) string {
+	Db := Connect()
+	defer func(db *gorm.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(Db)
+	Db.Where("Title = ? ", title).Delete(&Book{})
+	return "Book successfully deleted"
+}
+
+func (bookRepo *BookRepositoryImpl) DeleteBookByIsbn(bookIsbn string) string {
+	Db := Connect()
+	defer func(db *gorm.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(Db)
+	Db.Where("ISBN = ? ", bookIsbn).Delete(&Book{})
+	return "Book successfully deleted"
 }

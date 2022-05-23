@@ -1,1 +1,5 @@
-package Library
+package main
+
+func main() {
+
+}
