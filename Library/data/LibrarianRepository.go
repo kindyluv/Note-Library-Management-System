@@ -2,6 +2,7 @@ package data
 
 import (
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/kindyluv/Note-Library-Management-System/tree/indev/Library/Library/dto"
 	"log"
 )

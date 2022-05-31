@@ -6,8 +6,8 @@ type Reader struct {
 	gorm.Model
 	FirstName     string `json:"firstname" binding:"required"`
 	LastName      string `json:"lastname" binding:"required"`
-	Email         string `gorm:"unique"`
-	UserName      string `gorm:"unique"`
+	Email         string
+	UserName      string
 	Password      string
 	ReaderAccount []Account
 }

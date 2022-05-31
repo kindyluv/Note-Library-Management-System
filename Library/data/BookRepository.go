@@ -3,10 +3,11 @@ package data
 import (
 	"encoding/json"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/kindyluv/Note-Library-Management-System/tree/indev/Library/Library/dto"
+	"github.com/kindyluv/Note-Library-Management-System/tree/indev/Library/Library/utils"
 	"log"
 )
-import "github.com/kindyluv/Note-Library-Management-System/tree/indev/Library/Library/utils"
 
 type BookRepository interface {
 	SaveBook(book dto.BookRequest) *dto.BookResponse
@@ -31,14 +32,16 @@ var (
 )
 
 func Connect() *gorm.DB {
-	config, err = utils.LoadConfig("/home/precious/Desktop/dev/LibrarySystem/LibrarySystem")
+	config, err = utils.LoadConfig("/home/precious/Desktop/dev/LibrarySystem/LibrarySystem/Library/utils")
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("config-->", config)
 	Db, err = gorm.Open(config.DBDriver, config.DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("error connecting to db-->", err)
 	}
+	log.Println("db-->", Db)
 	Db.AutoMigrate(&Book{}, &Reader{}, &Account{}, &Librarian{}, Author{})
 	log.Println("connected " + "to db")
 	return Db
